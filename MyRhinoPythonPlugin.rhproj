@@ -1,0 +1,17 @@
+{
+  "name": "MyRhinoPythonPlugin",
+  "version": "0.1.0",
+  "author": "Your Name",
+  "description": "A sample Rhino plugin written in Python.",
+  "url": "https://github.com/your-repo/MyRhinoPythonPlugin",
+  "commands": [
+    {
+      "name": "MyPythonCommand",
+      "script": "src/my_python_command.py"
+    },
+    {
+      "name": "MyPythonCommandDebug",
+      "script": "src/my_python_command_debug.py"
+    }
+  ]
+}
