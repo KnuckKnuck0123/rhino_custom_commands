@@ -7,11 +7,55 @@
   "commands": [
     {
       "name": "MyPythonCommand",
-      "script": "src/my_python_command.py"
+      "script": "src/2D/my_python_command.py"
     },
     {
       "name": "MyPythonCommandDebug",
-      "script": "src/my_python_command_debug.py"
+      "script": "src/2D/my_python_command_debug.py"
+    },
+    {
+      "name": "DiagGrid",
+      "script": "src/2D/DiagGrid.py"
+    },
+    {
+      "name": "Grid",
+      "script": "src/2D/Grid.py"
+    },
+    {
+      "name": "WavyGrid",
+      "script": "src/2D/WavyGrid.py"
+    },
+    {
+      "name": "CyberPanels",
+      "script": "src/3D/CyberPanels.py"
+    },
+    {
+      "name": "PolygonalPipe2",
+      "script": "src/3D/PolygonalPipe2.py"
+    },
+    {
+      "name": "RandomBrickPile",
+      "script": "src/3D/RandomBrickPile.py"
+    },
+    {
+      "name": "RandomExtrusion",
+      "script": "src/3D/RandomExtrusion.py"
+    },
+    {
+      "name": "RigidBrickPile",
+      "script": "src/3D/RigidBrickPile.py"
+    },
+    {
+      "name": "SurfaceGridArray",
+      "script": "src/3D/SurfaceGridArray.py"
+    },
+    {
+      "name": "WildArray",
+      "script": "src/3D/WildArray.py"
+    },
+    {
+      "name": "WildSurfaceArray",
+      "script": "src/3D/WildSurfaceArray.py"
     }
   ]
 }

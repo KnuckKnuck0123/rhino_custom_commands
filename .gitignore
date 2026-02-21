@@ -99,3 +99,5 @@ ENV/
 *.pyd
 *~
 .DS_Store
+.gemini/
+gha-creds-*.json

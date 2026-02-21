@@ -1,6 +1,6 @@
-name: MyRhinoPythonPlugin
-version: 0.1.0
+name: GeometryArsenal
+version: 0.2.0
 authors:
-  - Your Name
-description: A sample Rhino plugin written in Python.
-url: "https://github.com/your-repo/MyRhinoPythonPlugin"
+  - Noah K
+description: A powerful arsenal of generative design tools and custom commands for Rhino 8.
+url: "https://github.com/noahk/GeometryArsenal"

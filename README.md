@@ -1,80 +1,41 @@
-# Rhino Toolbelt01
+# Geometry Arsenal ⚔️
 
-A custom collection of Python scripts for Rhino 8, focused on generative grids and cyberpunk detailing.
+**Geometry Arsenal** is a curated collection of high-performance Python scripts for Rhino 8, designed for generative architecture, detailing, and complex greeble generation.
 
-## Tools Included
+## 🧰 The Arsenal
 
-### 1. Grid
+### **2D Generators**
+| Command | Description |
+| :--- | :--- |
+| **`VariableGrille`** | Generates vertical variable grilles with random height variations inside curves or on surfaces. |
+| **`WavyGrid`** | Creates chaotic, fabric-like grids using interpolated curves and random jitter. |
+| **`DiagGrid`** | A hybrid grid generator for Diamond, Rectangular, or Union Jack patterns. |
+| **`Grid`** | Standard orthogonal grid utility. |
 
-A simple utility to generate a perfect orthogonal grid.
-- **Usage**: `Grid` command
-- **Inputs**: X/Y Cells, Spacing
+### **3D Generators**
+| Command | Description |
+| :--- | :--- |
+| **`WildArray`** | **(MASH-style)** Powerful 3D array tool with linear/random modes for translation, rotation, and scale. |
+| **`CyberPanels`** | Recursive subdivision tool for sci-fi panels, extracting pipes and extrusions on any surface. |
+| **`RandomBrickPile`** | Generates a chaotic, conical pile of bricks using Gaussian distribution. |
+| **`RigidBrickPile`** | Physically simulates stacking bricks by raycasting to prevent overlaps (slower, more realistic). |
+| **`PolygonalPipe`** | Sweeps custom profiles (Round, Triangle, Rect) along curves. |
+| **`RandomExtrusion`** | Randomly extrudes curves/surfaces to different heights (City generator). |
+| **`SurfaceGridArray`** | Maps objects onto a surface grid (UV based). |
 
-### 2. WavyGrid
+## 🚀 Usage
 
-Generates a chaotic, fabric-like grid using interpolated curves and random jitter.
-- **Usage**: `WavyGrid` command
-- **Inputs**: X/Y Cells, spacing, and a Chaos Factor
+This arsenal is optimized for **VS Code + Rhino 8**.
 
-### 3. DiagGrid
+1. **Open** this folder in VS Code.
+2. **Open** any script in `src/`.
+3. **Press `Cmd + Shift + B`** to execute the script instantly in your running Rhino instance.
+4. **Debug**: Press `F5` to attach the debugger (requires `EditPythonScript` -> Options -> Debugger enabled in Rhino).
 
-A hybrid grid generator that can mix Diagonal (Diamond), Rectangular, or Hybrid cells.
-- **Usage**: `DiagGrid`
-- **Modes**:
-  - Mode 0: Diagonal Only
-  - Mode 1: Hybrid (Union Jack)
-  - Mode 2: Random Mix
+## 🛠️ Installation
 
-### 4. CyberPanels
+ Clone this repository into your Rhino scripts folder or use the VS Code workspace directly.
 
-A recursive subdivision tool (greebler) for surfaces.
-- **Usage**: `CyberPanels`
-- **Features**:
-  - Recursively splits surface into panels
-  - Adds random extrusions (solid blocks)
-  - Adds random "Pipe Frames" for structural variety
-  - Works on **Curved Surfaces** (Spheres, Toroids) using Geodesic paths
+## 📄 License
 
-### 5. WildArray
-
-A powerful MASH-style array tool that supports both ordered (linear) and chaotic (random) distributions.
-- **Usage**: `WildArray`
-- **Features**:
-  - **3D Grid Support**: Array objects in X, Y, and Z axes simultaneously
-  - **Dual Modes**: Interpolate transforms (Linear) or randomize them (Wild)
-  - **Full Control**: Customize translation, rotation, and scaling variations
-  - **Interactive Loop**: Preview and edit parameters instantly without restarting
-
-### 6. PolygonalPipe
-
-Creates a pipe along a curve with options for custom profiles.
-- **Usage**: `PolygonalPipe2`
-- **Profiles**: Round, Triangle, or Rectangle/Box
-
-### 7. RandomExtrusion
-
-Randomly extrudes selected curves, surfaces, or SubD objects.
-- **Usage**: `RandomExtrusion`
-- **Features**:
-  - Assigns unique random heights to each object within a Min/Max range
-  - Great for creating cities or greeble landscapes quickly
-
-### 8. RandomBrickPile
-
-Generates a chaotic, conical pile of bricks using a Gaussian distribution.
-- **Usage**: `RandomBrickPile`
-- **Inputs**: Number of bricks, Center point
-
-### 9. RigidBrickPile
-
-Simulates physically stacking bricks by "dropping" them one by one.
-- **Usage**: `RigidBrickPile`
-- **Features**:
-  - Raycasts against previously placed bricks to prevent overlaps
-  - Creates a more realistic, stacked appearance than the random pile
-  - **Warning**: Slower than RandomBrickPile for large numbers of bricks due to collision checks
-
-
-
-This project is set up for VS Code.
-- **Run**: Open any script in `src/` and press `Cmd + Shift + B` to execute it in running Rhino instance.
+MIT License.
