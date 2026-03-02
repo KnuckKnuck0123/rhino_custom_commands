@@ -1,18 +1,21 @@
-# Geometry Arsenal ⚔️
+# Rhino Geometry Arsenal NK ⚔️
 
-**Geometry Arsenal** is a curated collection of high-performance Python scripts for Rhino 8, designed for generative architecture, detailing, and complex greeble generation.
+**Rhino Geometry Arsenal NK** is a curated collection of high-performance Python scripts for Rhino 8, designed for generative architecture, detailing, and complex greeble generation.
 
 ## 🧰 The Arsenal
 
 ### **2D Generators**
+
 | Command | Description |
 | :--- | :--- |
 | **`VariableGrille`** | Generates vertical variable grilles with random height variations inside curves or on surfaces. |
+| **`GridCurtainWall`** | Parametric 2D grid generation for glass panels, mullions, and frames. Supports custom surface boundaries, grid rotation, jitter, and automated 3D curvature mapping. |
 | **`WavyGrid`** | Creates chaotic, fabric-like grids using interpolated curves and random jitter. |
 | **`DiagGrid`** | A hybrid grid generator for Diamond, Rectangular, or Union Jack patterns. |
 | **`Grid`** | Standard orthogonal grid utility. |
 
 ### **3D Generators**
+
 | Command | Description |
 | :--- | :--- |
 | **`WildArray`** | **(MASH-style)** Powerful 3D array tool with linear/random modes for translation, rotation, and scale. |

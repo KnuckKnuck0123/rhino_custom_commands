@@ -1,9 +1,9 @@
 {
-  "name": "MyRhinoPythonPlugin",
-  "version": "0.1.0",
-  "author": "Your Name",
-  "description": "A sample Rhino plugin written in Python.",
-  "url": "https://github.com/your-repo/MyRhinoPythonPlugin",
+  "name": "Rhino_Geometry_Arsenal_NK",
+  "version": "0.2.0",
+  "author": "Noah K",
+  "description": "A powerful arsenal of generative design tools and custom commands for Rhino 8.",
+  "url": "https://github.com/noahk/Rhino_Geometry_Arsenal_NK",
   "commands": [
     {
       "name": "MyPythonCommand",
@@ -56,6 +56,14 @@
     {
       "name": "WildSurfaceArray",
       "script": "src/3D/WildSurfaceArray.py"
+    },
+    {
+      "name": "VariableGrille",
+      "script": "src/2D/VariableGrille.py"
+    },
+    {
+      "name": "GridCurtainWall",
+      "script": "src/2D/GridCurtainWall.py"
     }
   ]
 }

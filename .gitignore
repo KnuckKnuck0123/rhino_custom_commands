@@ -101,3 +101,6 @@ ENV/
 .DS_Store
 .gemini/
 gha-creds-*.json
+
+# Antigravity Rules
+GEMINI.md
