@@ -91,7 +91,6 @@ ENV/
 
 # Editor directories and files
 .idea/
-.vscode/
 *.swp
 *.bak
 *.pyc

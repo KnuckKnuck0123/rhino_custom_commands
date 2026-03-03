@@ -263,7 +263,10 @@ def create_wild_array():
             
             if selected == "APPLY" or selected == "":
                 # Keep objects, Exit
-                rs.SelectObjects(preview_ids)
+                if preview_ids:
+                    group_name = rs.AddGroup("WildArrayGroup")
+                    rs.AddObjectsToGroup(preview_ids, group_name)
+                    rs.SelectObjects(preview_ids)
                 print("Array created with {} objects.".format(len(preview_ids)))
                 break
                 

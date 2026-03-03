@@ -4,99 +4,17 @@ import math
 import Rhino
 import scriptcontext
 
-def create_2d_curtain_wall():
-    """
-    Creates a clean 2D curtain wall with sill/jamb frames, glass panels, 
-    and optional grid rotation and variation.
-    """
-    # 1. Get bounds
-    obj_id = rs.GetObject("Select a surface or closed curve for the curtain wall (Press Enter to draw)", rs.filter.surface | rs.filter.polysurface | rs.filter.curve)
+def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len_v, params):
+    v_panels = params["v_panels"]
+    h_panels = params["h_panels"]
+    v_mullion = params["v_mullion"]
+    h_mullion = params["h_mullion"]
+    sill_width = params["sill_width"]
+    jamb_width = params["jamb_width"]
+    variation = params["variation"]
+    angle = params["angle"]
     
-    is_non_planar_srf = False
-    len_u = 0
-    len_v = 0
-    
-    if obj_id:
-        if rs.IsCurve(obj_id):
-            if not rs.IsCurvePlanar(obj_id) or not rs.IsCurveClosed(obj_id):
-                print("Selected curve must be planar and closed.")
-                return
-            bbox = rs.BoundingBox(obj_id)
-            if not bbox: return
-            p1 = bbox[0]
-            p2 = bbox[2]
-            outer_crv_id = rs.CopyObject(obj_id)
-        else:
-            if not rs.IsSurfacePlanar(obj_id):
-                is_non_planar_srf = True
-                
-                if rs.IsPolysurface(obj_id):
-                    print("Please select a single Surface, not a Polysurface, for non-planar mapping.")
-                    return
-                
-                domain_u = rs.SurfaceDomain(obj_id, 0)
-                domain_v = rs.SurfaceDomain(obj_id, 1)
-                mid_v = (domain_v[0] + domain_v[1])/2.0
-                crv_u = rs.ExtractIsoCurve(obj_id, [domain_u[0], mid_v], 0)
-                len_u = rs.CurveLength(crv_u)
-                rs.DeleteObject(crv_u)
-                
-                mid_u = (domain_u[0] + domain_u[1])/2.0
-                crv_v = rs.ExtractIsoCurve(obj_id, [mid_u, domain_v[0]], 1)
-                len_v = rs.CurveLength(crv_v)
-                rs.DeleteObject(crv_v)
-                
-                p1 = [0, 0, 0]
-                p2 = [len_u, len_v, 0]
-                
-                outer_crv_id = rs.AddPolyline([[0,0,0], [len_u,0,0], [len_u,len_v,0], [0,len_v,0], [0,0,0]])
-                
-            else:
-                bbox = rs.BoundingBox(obj_id)
-                if not bbox: return
-                p1 = bbox[0]
-                p2 = bbox[2]
-                
-                # Extract the border curve for boolean operations later
-                border_crvs = rs.DuplicateSurfaceBorder(obj_id)
-                if not border_crvs: return
-                if len(border_crvs) == 1:
-                    outer_crv_id = border_crvs[0]
-                else:
-                    outer_crv_id = rs.JoinCurves(border_crvs, delete_input=True)[0]
-    else:
-        rect_pts = rs.GetRectangle()
-        if not rect_pts: return
-        p1 = rect_pts[0]
-        p2 = rect_pts[2]
-        outer_crv_id = None
-    
-    # 2. Parameters
-    v_panels = rs.GetInteger("Number of vertical panels (Columns)", 5, 1)
-    if v_panels is None: return
-    
-    h_panels = rs.GetInteger("Number of horizontal panels (Rows)", 3, 1)
-    if h_panels is None: return
-    
-    v_mullion = rs.GetReal("Vertical mullion width", 2.0, 0.0)
-    if v_mullion is None: return
-    
-    h_mullion = rs.GetReal("Horizontal mullion width", 2.0, 0.0)
-    if h_mullion is None: return
-    
-    sill_width = rs.GetReal("Top and Bottom Sill width", 4.0, 0.0)
-    if sill_width is None: return
-    
-    jamb_width = rs.GetReal("Left and Right Jamb width", 4.0, 0.0)
-    if jamb_width is None: return
-    
-    variation = rs.GetReal("Panel Size Variation (0.0 to 1.0)", 0.2, 0.0, 1.0)
-    if variation is None: return
-    
-    angle = rs.GetReal("Grid Rotation Angle (degrees)", 0.0)
-    if angle is None: return
-
-    rs.EnableRedraw(False)
+    random.seed(42) # Keep random variation consistent during live preview
     
     created_objs = []
     
@@ -110,53 +28,54 @@ def create_2d_curtain_wall():
     cw_width = max_x - min_x
     cw_height = max_y - min_y
     
-    # Outer curve handling
-    if outer_crv_id:
-        outer_rect = outer_crv_id
+    if cw_width <= 0 or cw_height <= 0:
+        return []
+
+    # Draw the boundary limits
+    if outer_curves:
+        for cid in outer_curves:
+            c = rs.CopyObject(cid)
+            if c:
+                created_objs.append(c)
     else:
-        outer_rect = rs.AddPolyline([[min_x, min_y, z], [max_x, min_y, z], 
+        rect = rs.AddPolyline([[min_x, min_y, z], [max_x, min_y, z], 
                                      [max_x, max_y, z], [min_x, max_y, z], [min_x, min_y, z]])
-    created_objs.append(outer_rect)
-                                 
-    # Using bounding box inner dimension for math calculation
+        if rect:
+            created_objs.append(rect)
+
+    # Bounding box inner dimension for basic grid math
     inner_min_x = min_x + jamb_width
     inner_max_x = max_x - jamb_width
     inner_min_y = min_y + sill_width
     inner_max_y = max_y - sill_width
     
-    if inner_min_x >= inner_max_x or inner_min_y >= inner_max_y:
-        print("Sill or Jamb widths are too large for the bounding box.")
-        rs.EnableRedraw(True)
-        return
-        
-    # Generate the inner cut geometry based on whether it is a custom shape or rectangle
-    if outer_crv_id:
-        # For arbitrary surfaces, we use rs.OffsetCurve (assuming avg. offset for simplicity if jamb != sill)
-        # Offset curve inward. We will pick a point inside the bounding box.
-        center_pt = [(min_x + max_x)/2.0, (min_y + max_y)/2.0, z]
-        avg_offset = (jamb_width + sill_width) / 2.0
-        
-        if avg_offset > 0:
-            inner_crvs = rs.OffsetCurve(outer_rect, center_pt, avg_offset)
-            if inner_crvs:
-                inner_rect = inner_crvs[0]
-            else:
-                inner_rect = rs.CopyObject(outer_rect) # fallback
-        else:
-            inner_rect = rs.CopyObject(outer_rect)
+    # Prevent inside-out scaling
+    if inner_min_x >= inner_max_x:
+        jamb_width = cw_width * 0.1
+        inner_min_x = min_x + jamb_width
+        inner_max_x = max_x - jamb_width
+
+    if inner_min_y >= inner_max_y:
+        sill_width = cw_height * 0.1
+        inner_min_y = min_y + sill_width
+        inner_max_y = max_y - sill_width
+
+    # Generate an inner rectangle to represent the bounding frame minus jambs/sills
+    inner_rect = rs.AddPolyline([[inner_min_x, inner_min_y, z], [inner_max_x, inner_min_y, z], 
+                                 [inner_max_x, inner_max_y, z], [inner_min_x, inner_max_y, z], [inner_min_x, inner_min_y, z]])
+    
+    if inner_rect:
+        created_objs.append(inner_rect)
     else:
-        inner_rect = rs.AddPolyline([[inner_min_x, inner_min_y, z], [inner_max_x, inner_min_y, z], 
-                                     [inner_max_x, inner_max_y, z], [inner_min_x, inner_max_y, z], [inner_min_x, inner_min_y, z]])
-    
-    created_objs.append(inner_rect)
-    
+        return created_objs
+
     inner_width = inner_max_x - inner_min_x
     inner_height = inner_max_y - inner_min_y
     
     glass_panels = []
-    
     raw_panels = []
     
+    # Grid logic
     if angle == 0.0:
         # Standard unrotated
         # Calculate grid lines over bounding box
@@ -202,9 +121,10 @@ def create_2d_curtain_wall():
                 if px_min < px_max and py_min < py_max:
                     panel = rs.AddPolyline([[px_min, py_min, z], [px_max, py_min, z],
                                             [px_max, py_max, z], [px_min, py_max, z], [px_min, py_min, z]])
-                    raw_panels.append(panel)
+                    if panel:
+                        raw_panels.append(panel)
     else:
-        # Build an oversized grid and rotate it around the center, then intersect with inner bound.
+        # Build an oversized grid and rotate it
         center_x = (min_x + max_x) / 2.0
         center_y = (min_y + max_y) / 2.0
         center_pt = [center_x, center_y, z]
@@ -215,8 +135,12 @@ def create_2d_curtain_wall():
         oversize_min_y = center_y - diag
         oversize_max_y = center_y + diag
         
-        avg_w = inner_width / v_panels
-        avg_h = inner_height / h_panels
+        avg_w = inner_width / v_panels if v_panels > 0 else inner_width
+        avg_h = inner_height / h_panels if h_panels > 0 else inner_height
+        
+        # Hard cap to prevent infinite or extreme iteration crashing
+        if avg_w < diag * 0.02: avg_w = diag * 0.02
+        if avg_h < diag * 0.02: avg_h = diag * 0.02
         
         big_xs = []
         cx = oversize_min_x
@@ -248,31 +172,64 @@ def create_2d_curtain_wall():
                 if px_min < px_max and py_min < py_max:
                     panel = rs.AddPolyline([[px_min, py_min, z], [px_max, py_min, z],
                                             [px_max, py_max, z], [px_min, py_max, z], [px_min, py_min, z]])
-                    rs.RotateObject(panel, center_pt, angle)
-                    raw_panels.append(panel)
+                    if panel:
+                        rs.RotateObject(panel, center_pt, angle)
+                        raw_panels.append(panel)
                     
-    # Intersect raw panels with inner_rect
+    # Intersect raw panels with inner bounding frame (inner_rect)
     inner_crv_geom = rs.coercecurve(inner_rect)
+    framed_panels_geom = []
+    
     tol = scriptcontext.doc.ModelAbsoluteTolerance
-    for p in raw_panels:
-        p_geom = rs.coercecurve(p)
-        out_crvs = Rhino.Geometry.Curve.CreateBooleanIntersection(p_geom, inner_crv_geom, tol)
-        if out_crvs:
-            for crv in out_crvs:
-                crv_id = scriptcontext.doc.Objects.AddCurve(crv)
-                if crv_id:
-                    glass_panels.append(crv_id)
-        rs.DeleteObject(p)
+    if inner_crv_geom:
+        for p in raw_panels:
+            p_geom = rs.coercecurve(p)
+            if p_geom:
+                try:
+                    out_crvs = Rhino.Geometry.Curve.CreateBooleanIntersection(p_geom, inner_crv_geom, tol)
+                    if out_crvs:
+                        framed_panels_geom.extend(out_crvs)
+                except:
+                    pass
+            if p: rs.DeleteObject(p)
+
+    # Secondary intersection against true surface bounds (holes, irregular shapes)
+    final_panels_geom = []
+    srf_curves_geom = []
+    if outer_curves:
+        for c in outer_curves:
+            cg = rs.coercecurve(c)
+            if cg:
+                srf_curves_geom.append(cg)
+
+    if srf_curves_geom:
+        # Intersect all generated frame panels with the surface region to correctly clip holes
+        for p_geom in framed_panels_geom:
+            try:
+                # CreateBooleanIntersection accepts (IEnumerable curvesA, IEnumerable curvesB, tol)
+                out_crvs = Rhino.Geometry.Curve.CreateBooleanIntersection([p_geom], srf_curves_geom, tol)
+                if out_crvs:
+                    final_panels_geom.extend(out_crvs)
+            except:
+                pass
+    else:
+        final_panels_geom = framed_panels_geom
+
+    # Bake final panels to the doc
+    for crv in final_panels_geom:
+        if crv:
+            crv_id = scriptcontext.doc.Objects.AddCurve(crv)
+            if crv_id:
+                glass_panels.append(crv_id)
 
     created_objs.extend(glass_panels)
 
-    # If it was a non-planar surface, map all 2D shapes back to the varying 3D surface
-    if is_non_planar_srf:
+    # Transform to 3D surface if required
+    if is_non_planar_srf and obj_id:
         domain_u = rs.SurfaceDomain(obj_id, 0)
         domain_v = rs.SurfaceDomain(obj_id, 1)
         mapped_objs = []
         for obj in created_objs:
-            # Extract points (convert curved boundaries to straight segments first if needed)
             pts = []
             if rs.IsCurve(obj):
                 pl_obj = rs.ConvertCurveToPolyline(obj)
@@ -283,7 +240,6 @@ def create_2d_curtain_wall():
                     pts = rs.CurvePoints(obj)
             
             if pts:
-                # Subdivide long segments so they gracefully drape over the 3D surface curvature
                 sub_pts = [pts[0]]
                 for idx in range(1, len(pts)):
                     pA = pts[idx-1]
@@ -304,16 +260,13 @@ def create_2d_curtain_wall():
                     srf_pt = rs.EvaluateSurface(obj_id, u, v)
                     
                     target_pt = srf_pt if srf_pt else pt
-                    # Cull duplicate identical points
                     if not new_pts or rs.Distance(new_pts[-1], target_pt) > 0.005:
                         new_pts.append(target_pt)
                 
-                # Make sure completely closed profiles map seamlessly
                 if rs.IsCurveClosed(obj) and len(new_pts) > 1:
                     if rs.Distance(new_pts[0], new_pts[-1]) > 0.005:
                         new_pts.append(new_pts[0])
                 
-                # Only construct if valid polyline
                 if len(new_pts) >= 2:
                     try:
                         mapped = rs.AddPolyline(new_pts)
@@ -322,18 +275,162 @@ def create_2d_curtain_wall():
                     except:
                         pass
                     
-            rs.DeleteObject(obj)
+            if obj: rs.DeleteObject(obj)
             
         created_objs = mapped_objs
-        glass_panels = []
 
-    # Group everything
-    group_name = rs.AddGroup("2DCurtainWall")
-    if created_objs:
-        rs.AddObjectsToGroup(created_objs, group_name)
+    return created_objs
 
-    rs.EnableRedraw(True)
-    print("Created 2D Curtain Wall with {} glass panels.".format(len(glass_panels)))
+def create_2d_curtain_wall():
+    obj_id = rs.GetObject("Select a surface or closed curve for the curtain wall (Press Enter to draw)", rs.filter.surface | rs.filter.polysurface | rs.filter.curve)
+    
+    is_non_planar_srf = False
+    len_u = 0
+    len_v = 0
+    p1 = None
+    p2 = None
+    outer_curves = []
+    
+    if obj_id:
+        if rs.IsCurve(obj_id):
+            if not rs.IsCurvePlanar(obj_id) or not rs.IsCurveClosed(obj_id):
+                print("Selected curve must be planar and closed.")
+                return
+            bbox = rs.BoundingBox(obj_id)
+            if not bbox: return
+            p1 = bbox[0]
+            p2 = bbox[2]
+            outer_curves = [rs.CopyObject(obj_id)]
+        else:
+            if not rs.IsSurfacePlanar(obj_id):
+                is_non_planar_srf = True
+                
+                if rs.IsPolysurface(obj_id):
+                    print("Please select a single Surface, not a Polysurface, for non-planar mapping.")
+                    return
+                
+                domain_u = rs.SurfaceDomain(obj_id, 0)
+                domain_v = rs.SurfaceDomain(obj_id, 1)
+                mid_v = (domain_v[0] + domain_v[1])/2.0
+                crv_u = rs.ExtractIsoCurve(obj_id, [domain_u[0], mid_v], 0)
+                len_u = rs.CurveLength(crv_u)
+                rs.DeleteObject(crv_u)
+                
+                mid_u = (domain_u[0] + domain_u[1])/2.0
+                crv_v = rs.ExtractIsoCurve(obj_id, [mid_u, domain_v[0]], 1)
+                len_v = rs.CurveLength(crv_v)
+                rs.DeleteObject(crv_v)
+                
+                p1 = [0, 0, 0]
+                p2 = [len_u, len_v, 0]
+                
+                rect_crv = rs.AddPolyline([[0,0,0], [len_u,0,0], [len_u,len_v,0], [0,len_v,0], [0,0,0]])
+                if rect_crv:
+                    outer_curves = [rect_crv]
+                
+            else:
+                bbox = rs.BoundingBox(obj_id)
+                if not bbox: return
+                p1 = bbox[0]
+                p2 = bbox[2]
+                
+                border_crvs = rs.DuplicateSurfaceBorder(obj_id)
+                if not border_crvs: return
+                outer_curves = border_crvs
+    else:
+        rect_pts = rs.GetRectangle()
+        if not rect_pts: return
+        p1 = rect_pts[0]
+        p2 = rect_pts[2]
+
+    params = {
+        "v_panels": 5,
+        "h_panels": 3,
+        "v_mullion": 2.0,
+        "h_mullion": 2.0,
+        "sill_width": 4.0,
+        "jamb_width": 4.0,
+        "variation": 0.2,
+        "angle": 0.0
+    }
+    
+    labels = [
+        "V Panels", "H Panels",
+        "V Mullion", "H Mullion",
+        "Sill Width", "Jamb Width",
+        "Variation (0.0-1.0)", "Rotation Angle"
+    ]
+    
+    defaults = [
+        str(params["v_panels"]), str(params["h_panels"]),
+        str(params["v_mullion"]), str(params["h_mullion"]),
+        str(params["sill_width"]), str(params["jamb_width"]),
+        str(params["variation"]), str(params["angle"])
+    ]
+    
+    title = "2D Curtain Wall Parameters"
+    msg = "Configure the grid parameters."
+    
+    preview_ids = []
+    
+    while True:
+        if preview_ids:
+            rs.DeleteObjects(preview_ids)
+            preview_ids = []
+            
+        rs.EnableRedraw(False)
+        preview_ids = generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len_v, params)
+        rs.EnableRedraw(True)
+        
+        results = rs.PropertyListBox(labels, defaults, title, msg)
+        
+        if not results:
+            if preview_ids: rs.DeleteObjects(preview_ids)
+            
+            # Clean up copied outer boundary items if aborting
+            for cid in outer_curves:
+                if cid and cid != obj_id:
+                    rs.DeleteObject(cid)
+                    
+            print("Curtain Wall generation cancelled.")
+            break
+            
+        defaults = results
+        
+        try:
+            params["v_panels"] = max(1, int(results[0]))
+            params["h_panels"] = max(1, int(results[1]))
+            params["v_mullion"] = max(0.0, float(results[2]))
+            params["h_mullion"] = max(0.0, float(results[3]))
+            params["sill_width"] = max(0.0, float(results[4]))
+            params["jamb_width"] = max(0.0, float(results[5]))
+            params["variation"] = max(0.0, min(1.0, float(results[6])))
+            params["angle"] = float(results[7])
+        except:
+            rs.MessageBox("Invalid input values. Please try again.")
+            continue
+            
+        res = rs.MessageBox("Accept Current Layout?\nYes = Apply\nNo = Edit again\nCancel = Quit", 3 | 32)
+        
+        if res == 6: # Yes
+            group_name = rs.AddGroup("2DCurtainWall")
+            if preview_ids:
+                rs.AddObjectsToGroup(preview_ids, group_name)
+                rs.SelectObjects(preview_ids)
+                
+            for cid in outer_curves:
+                if cid and cid != obj_id:
+                    rs.DeleteObject(cid)
+                    
+            print("Created 2D Curtain Wall successfully.")
+            break
+        elif res == 2: # Cancel
+            if preview_ids: rs.DeleteObjects(preview_ids)
+            
+            for cid in outer_curves:
+                if cid and cid != obj_id:
+                    rs.DeleteObject(cid)
+            break
 
 if __name__ == "__main__":
     create_2d_curtain_wall()

@@ -34,18 +34,20 @@ def create_wild_surface_array():
     # Labels
     labels = [
         "Total Count",                     # 0
-        "Scale Base (1.0 = Original)",     # 1
-        "Scale Var (0.5 = +/- 0.5)",       # 2
-        "Offset Z (Base)",                 # 3
-        "Offset Z Var (+/-)",              # 4
-        "Rot Z (Spin Max Deg)",            # 5
-        "Rot X/Y (Tilt Max Deg)",          # 6
-        "Seed"                             # 7
+        "Var Mode (0=Rnd, 1=Lin)",         # 1
+        "Scale Base (1.0 = Original)",     # 2
+        "Scale Var (0.5 = +/- 0.5)",       # 3
+        "Offset Z (Base)",                 # 4
+        "Offset Z Var (+/-)",              # 5
+        "Rot Z (Spin Max Deg)",            # 6
+        "Rot X/Y (Tilt Max Deg)",          # 7
+        "Seed"                             # 8
     ]
     
     # Initial Defaults
     defaults = [
         "50",                              # Count
+        "0",                               # Var Mode
         "1.0",                             # Scale Base
         "0.2",                             # Scale Var
         "0.0",                             # Offset Base
@@ -131,13 +133,14 @@ def create_wild_surface_array():
         
         try:
             count = int(results[0])
-            s_base = float(results[1])
-            s_var = float(results[2])
-            z_base = float(results[3])
-            z_var = float(results[4])
-            r_spin_max = float(results[5])
-            r_tilt_max = float(results[6])
-            seed = int(results[7])
+            var_mode = int(results[1])
+            s_base = float(results[2])
+            s_var = float(results[3])
+            z_base = float(results[4])
+            z_var = float(results[5])
+            r_spin_max = float(results[6])
+            r_tilt_max = float(results[7])
+            seed = int(results[8])
         except:
             rs.MessageBox("Invalid input values. Please try again.")
             continue
@@ -156,7 +159,9 @@ def create_wild_surface_array():
         # Generate Limit (prevent infinite loops if mesh broken)
         # We can just iterate 'count' times
         
-        for _ in range(count):
+        for i in range(count):
+            t = float(i) / max(1, count - 1)
+            
             # A. Pick Random Face Weighted
             r_val = random.uniform(0, total_area)
             face_idx = bisect.bisect_left(cdf, r_val)
@@ -204,7 +209,11 @@ def create_wild_surface_array():
             
             # Create Target Plane
             # We apply Offset Z here
-            offset_final = z_base + random.uniform(-z_var, z_var)
+            if var_mode == 1: # Linear
+                offset_final = (z_base - z_var) + (2.0 * z_var * t)
+            else: # Random
+                offset_final = z_base + random.uniform(-z_var, z_var)
+                
             origin_final = pt_loc + (n_loc * offset_final)
             
             # rg.Plane(origin, normal) creates a valid plane with arbitrary X/Y
@@ -217,20 +226,27 @@ def create_wild_surface_array():
             
             # E. Local Randoms (Scale, Spin, Tilt)
             
+            if var_mode == 1: # Linear Variation
+                s_final = (s_base - s_var) + (2.0 * s_var * t)
+                r_spin = -r_spin_max + (2.0 * r_spin_max * t)
+                r_tilt_x = -r_tilt_max + (2.0 * r_tilt_max * t)
+                r_tilt_y = -r_tilt_max + (2.0 * r_tilt_max * t)
+            else: # Random Variation
+                s_final = s_base + random.uniform(-s_var, s_var)
+                r_spin = random.uniform(-r_spin_max, r_spin_max)
+                r_tilt_x = random.uniform(-r_tilt_max, r_tilt_max)
+                r_tilt_y = random.uniform(-r_tilt_max, r_tilt_max)
+
             # Scale
-            s_final = s_base + random.uniform(-s_var, s_var)
             if s_final <= 0: s_final = 0.01 # Prevent zero/negative scale issues
             rs.ScaleObject(new_obj, origin_final, [s_final, s_final, s_final])
             
             # Spin (Rotation around Normal)
-            r_spin = random.uniform(-r_spin_max, r_spin_max)
             if r_spin != 0:
                 rs.RotateObject(new_obj, origin_final, r_spin, n_loc)
                 
             # Tilt (Rotation around local X or Y)
             # plane_target X and Y are now valid local axes for the object
-            r_tilt_x = random.uniform(-r_tilt_max, r_tilt_max)
-            r_tilt_y = random.uniform(-r_tilt_max, r_tilt_max)
             
             if r_tilt_x != 0:
                 rs.RotateObject(new_obj, origin_final, r_tilt_x, plane_target.XAxis)
@@ -249,8 +265,9 @@ def create_wild_surface_array():
         )
         
         if user_response == 6: # Yes
-            group = rs.AddGroup()
-            rs.AddObjectsToGroup(created_objs, group)
+            group_name = rs.AddGroup("WildSurfaceArrayGroup")
+            rs.AddObjectsToGroup(created_objs, group_name)
+            rs.SelectObjects(created_objs)
             break
         elif user_response == 7: # Edit
             rs.DeleteObjects(created_objs)

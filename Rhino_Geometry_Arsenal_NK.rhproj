@@ -18,8 +18,8 @@
       "script": "src/2D/DiagGrid.py"
     },
     {
-      "name": "Grid",
-      "script": "src/2D/Grid.py"
+      "name": "StandardGrid",
+      "script": "src/2D/StandardGrid.py"
     },
     {
       "name": "WavyGrid",
@@ -64,6 +64,22 @@
     {
       "name": "GridCurtainWall",
       "script": "src/2D/GridCurtainWall.py"
+    },
+    {
+      "name": "IBeamProfile",
+      "script": "src/2D/IBeamProfile.py"
+    },
+    {
+      "name": "MetalDeckProfile",
+      "script": "src/2D/MetalDeckProfile.py"
+    },
+    {
+      "name": "VariableGrille_CleanBorder",
+      "script": "src/2D/VariableGrille_CleanBorder.py"
+    },
+    {
+      "name": "ChaoticCurtainWall",
+      "script": "src/3D/ChaoticCurtainWall.py"
     }
   ]
 }

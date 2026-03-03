@@ -12,7 +12,7 @@
 | **`GridCurtainWall`** | Parametric 2D grid generation for glass panels, mullions, and frames. Supports custom surface boundaries, grid rotation, jitter, and automated 3D curvature mapping. |
 | **`WavyGrid`** | Creates chaotic, fabric-like grids using interpolated curves and random jitter. |
 | **`DiagGrid`** | A hybrid grid generator for Diamond, Rectangular, or Union Jack patterns. |
-| **`Grid`** | Standard orthogonal grid utility. |
+| **`StandardGrid`** | Standard orthogonal grid utility. |
 
 ### **3D Generators**
 
@@ -35,9 +35,25 @@ This arsenal is optimized for **VS Code + Rhino 8**.
 3. **Press `Cmd + Shift + B`** to execute the script instantly in your running Rhino instance.
 4. **Debug**: Press `F5` to attach the debugger (requires `EditPythonScript` -> Options -> Debugger enabled in Rhino).
 
-## 🛠️ Installation
+## 🛠️ Installation & Plugin Creation
 
- Clone this repository into your Rhino scripts folder or use the VS Code workspace directly.
+### 🚀 Drag & Drop Installation (Rhino 8)
+The fastest way to install all the scripts as custom commands without compiling:
+
+**For Windows & Mac:**
+1. Open a new or existing document in Rhino 8.
+2. Drag and drop the `Rhino_Geometry_Arsenal_NK.rhproj` file directly from your file browser onto the open Rhino workspace.
+3. Rhino will parse the project and automatically register each python script within the `src/` folder as a native Rhino command.
+
+### Running as Scripts
+Clone this repository into your Rhino scripts folder or use the VS Code workspace directly.
+
+### Baking as a Rhino Plugin (.rhp)
+To compile this project into a standalone Rhino plugin:
+1. Open Rhino 8 and run the `ScriptEditor` command.
+2. Open the `Rhino_Geometry_Arsenal_NK.rhproj` project file within the Script Editor.
+3. Click the **Publish** button in the Script Editor toolbar.
+4. Follow the prompts to build the `.rhp` plugin or `.yak` package, which can then be installed via the Rhino Plugin Manager or Package Manager.
 
 ## 📄 License
 
