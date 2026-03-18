@@ -4,7 +4,12 @@
         {
             "label": "Run Rhino 8 Script",
             "type": "shell",
-            "command": "/Applications/Rhino 8.app/Contents/Resources/bin/rhinocode",
+            "windows": {
+                "command": "C:\\Program Files\\Rhino 8\\System\\rhinocode.exe"
+            },
+            "osx": {
+                "command": "/Applications/Rhino 8.app/Contents/Resources/bin/rhinocode"
+            },
             "args": [
                 "script",
                 "${file}"

@@ -1,5 +1,7 @@
 import rhinoscriptsyntax as rs
 import Rhino
+import Rhino.Geometry
+import scriptcontext as sc
 import System.Collections.Generic
 import random
 import math
@@ -249,36 +251,5 @@ def create_rigid_brick_pile():
 
     return True
 
-# Need to import scriptcontext to access doc if we strictly follow RhinoCommon
-import scriptcontext as sc
-import rhinoscriptsyntax as rs
-
-if "scriptcontext" not in locals():
-    import scriptcontext as sc
-# Ensure doc is active
-if not sc.doc: sc.doc = Rhino.RhinoDoc.ActiveDoc
-
 if __name__ == "__main__":
-    # Loop to allow re-running easily
-    while True:
-        # Check for escape key or cancellation inside the function
-        # We need the function to return status. 
-        # Modifying the function to return False on cancel would be ideal, 
-        # but catching the None returns is enough if we check carefully.
-        
-        # To make this robust without rewriting all returns:
-        # We just ask "Run again?" at the end if successful?
-        # Or simply loop and if inputs are cancelled, we break.
-        
-        result = create_rigid_brick_pile()
-        
-        # If result is None (inputs cancelled), break
-        if result is False or result is None:
-            print("Script cancelled.")
-            break
-        
-        # Optional: Explicit Prompt to continue
-        # rs.GetBoolean or GetString
-        # Just looping into inputs is usually the standard Rhino command flow (Repeat command).
-        # We will assume if they Cancel inputs, they want to stop.
-
+    create_rigid_brick_pile()

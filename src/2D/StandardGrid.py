@@ -17,6 +17,10 @@ def create_grid():
     spacing = rs.GetReal("Grid cell spacing", 1.0, 0.001)
     if spacing is None: return
 
+    # Grid line thickness
+    thickness = rs.GetReal("Grid line thickness (0 for none)", 0.0, 0.0)
+    if thickness is None: return
+
     # Group the grid lines for easier management? Optional, but nice.
     # Let's just make lines for now.
 
@@ -32,18 +36,40 @@ def create_grid():
 
     for i in range(x_cells + 1):
         x_pos = i * spacing
-        start = (x_pos, 0, 0)
-        end = (x_pos, total_height, 0)
-        line = rs.AddLine(start, end)
-        if line: grid_lines.append(line)
+        if thickness > 0:
+            t = thickness / 2.0
+            rect = rs.AddPolyline([
+                (x_pos - t, 0, 0),
+                (x_pos + t, 0, 0),
+                (x_pos + t, total_height, 0),
+                (x_pos - t, total_height, 0),
+                (x_pos - t, 0, 0)
+            ])
+            if rect: grid_lines.append(rect)
+        else:
+            start = (x_pos, 0, 0)
+            end = (x_pos, total_height, 0)
+            line = rs.AddLine(start, end)
+            if line: grid_lines.append(line)
 
     # 3. Create horizontal lines (along X axis, varying Y)
     for j in range(y_cells + 1):
         y_pos = j * spacing
-        start = (0, y_pos, 0)
-        end = (total_width, y_pos, 0)
-        line = rs.AddLine(start, end)
-        if line: grid_lines.append(line)
+        if thickness > 0:
+            t = thickness / 2.0
+            rect = rs.AddPolyline([
+                (0, y_pos - t, 0),
+                (total_width, y_pos - t, 0),
+                (total_width, y_pos + t, 0),
+                (0, y_pos + t, 0),
+                (0, y_pos - t, 0)
+            ])
+            if rect: grid_lines.append(rect)
+        else:
+            start = (0, y_pos, 0)
+            end = (total_width, y_pos, 0)
+            line = rs.AddLine(start, end)
+            if line: grid_lines.append(line)
     
     # Optional: Group the created objects
     if grid_lines:

@@ -4,7 +4,45 @@ import math
 import Rhino
 import scriptcontext
 
-def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len_v, params):
+def get_plane_and_bounds_from_curves(crv_ids):
+    if not crv_ids: return None, None, None
+    poly = rs.ConvertCurveToPolyline(crv_ids[0])
+    if not poly: return None, None, None
+    pts = rs.CurvePoints(poly)
+    rs.DeleteObject(poly)
+    if not pts: return None, None, None
+    
+    plane = rs.PlaneFitFromPoints(pts)
+    if not plane: return None, None, None
+    
+    world_z = Rhino.Geometry.Vector3d(0, 0, 1)
+    if abs(plane.ZAxis.Z) < 0.99:
+        horiz_x = Rhino.Geometry.Vector3d.CrossProduct(plane.ZAxis, world_z)
+        horiz_x.Unitize()
+        horiz_y = Rhino.Geometry.Vector3d.CrossProduct(plane.ZAxis, horiz_x)
+        horiz_y.Unitize()
+        if horiz_y.Z < 0:
+            horiz_y = -horiz_y
+            horiz_x = -horiz_x
+        plane = Rhino.Geometry.Plane(plane.Origin, horiz_x, horiz_y)
+    
+    xform_to_2d = Rhino.Geometry.Transform.ChangeBasis(Rhino.Geometry.Plane.WorldXY, plane)
+    
+    min_x, min_y = float('inf'), float('inf')
+    max_x, max_y = float('-inf'), float('-inf')
+    
+    for cid in crv_ids:
+        cg = rs.coercecurve(cid).Duplicate()
+        cg.Transform(xform_to_2d)
+        bbox = cg.GetBoundingBox(True)
+        if bbox.Min.X < min_x: min_x = bbox.Min.X
+        if bbox.Min.Y < min_y: min_y = bbox.Min.Y
+        if bbox.Max.X > max_x: max_x = bbox.Max.X
+        if bbox.Max.Y > max_y: max_y = bbox.Max.Y
+        
+    return plane, [min_x, min_y, 0], [max_x, max_y, 0]
+
+def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len_v, params, plane=None):
     v_panels = params["v_panels"]
     h_panels = params["h_panels"]
     v_mullion = params["v_mullion"]
@@ -31,6 +69,12 @@ def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len
     if cw_width <= 0 or cw_height <= 0:
         return []
 
+    xform_to_3d = None
+    xform_to_2d = None
+    if plane:
+        xform_to_3d = Rhino.Geometry.Transform.ChangeBasis(plane, Rhino.Geometry.Plane.WorldXY)
+        xform_to_2d = Rhino.Geometry.Transform.ChangeBasis(Rhino.Geometry.Plane.WorldXY, plane)
+
     # Draw the boundary limits
     if outer_curves:
         for cid in outer_curves:
@@ -41,6 +85,11 @@ def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len
         rect = rs.AddPolyline([[min_x, min_y, z], [max_x, min_y, z], 
                                      [max_x, max_y, z], [min_x, max_y, z], [min_x, min_y, z]])
         if rect:
+            if xform_to_3d:
+                rg = rs.coercecurve(rect).Duplicate()
+                rg.Transform(xform_to_3d)
+                rs.DeleteObject(rect)
+                rect = scriptcontext.doc.Objects.AddCurve(rg)
             created_objs.append(rect)
 
     # Bounding box inner dimension for basic grid math
@@ -64,7 +113,14 @@ def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len
     inner_rect = rs.AddPolyline([[inner_min_x, inner_min_y, z], [inner_max_x, inner_min_y, z], 
                                  [inner_max_x, inner_max_y, z], [inner_min_x, inner_max_y, z], [inner_min_x, inner_min_y, z]])
     
+    inner_crv_geom = None
     if inner_rect:
+        inner_crv_geom = rs.coercecurve(inner_rect).Duplicate()
+        if xform_to_3d:
+            rg = rs.coercecurve(inner_rect).Duplicate()
+            rg.Transform(xform_to_3d)
+            rs.DeleteObject(inner_rect)
+            inner_rect = scriptcontext.doc.Objects.AddCurve(rg)
         created_objs.append(inner_rect)
     else:
         return created_objs
@@ -177,7 +233,6 @@ def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len
                         raw_panels.append(panel)
                     
     # Intersect raw panels with inner bounding frame (inner_rect)
-    inner_crv_geom = rs.coercecurve(inner_rect)
     framed_panels_geom = []
     
     tol = scriptcontext.doc.ModelAbsoluteTolerance
@@ -198,8 +253,9 @@ def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len
     srf_curves_geom = []
     if outer_curves:
         for c in outer_curves:
-            cg = rs.coercecurve(c)
+            cg = rs.coercecurve(c).Duplicate()
             if cg:
+                if xform_to_2d: cg.Transform(xform_to_2d)
                 srf_curves_geom.append(cg)
 
     if srf_curves_geom:
@@ -218,6 +274,7 @@ def generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len
     # Bake final panels to the doc
     for crv in final_panels_geom:
         if crv:
+            if xform_to_3d: crv.Transform(xform_to_3d)
             crv_id = scriptcontext.doc.Objects.AddCurve(crv)
             if crv_id:
                 glass_panels.append(crv_id)
@@ -290,17 +347,20 @@ def create_2d_curtain_wall():
     p1 = None
     p2 = None
     outer_curves = []
+    plane = None
     
     if obj_id:
         if rs.IsCurve(obj_id):
             if not rs.IsCurvePlanar(obj_id) or not rs.IsCurveClosed(obj_id):
                 print("Selected curve must be planar and closed.")
                 return
-            bbox = rs.BoundingBox(obj_id)
-            if not bbox: return
-            p1 = bbox[0]
-            p2 = bbox[2]
             outer_curves = [rs.CopyObject(obj_id)]
+            plane, p1, p2 = get_plane_and_bounds_from_curves(outer_curves)
+            if not plane:
+                bbox = rs.BoundingBox(obj_id)
+                if not bbox: return
+                p1 = bbox[0]
+                p2 = bbox[2]
         else:
             if not rs.IsSurfacePlanar(obj_id):
                 is_non_planar_srf = True
@@ -329,14 +389,15 @@ def create_2d_curtain_wall():
                     outer_curves = [rect_crv]
                 
             else:
-                bbox = rs.BoundingBox(obj_id)
-                if not bbox: return
-                p1 = bbox[0]
-                p2 = bbox[2]
-                
                 border_crvs = rs.DuplicateSurfaceBorder(obj_id)
                 if not border_crvs: return
                 outer_curves = border_crvs
+                plane, p1, p2 = get_plane_and_bounds_from_curves(outer_curves)
+                if not plane:
+                    bbox = rs.BoundingBox(obj_id)
+                    if not bbox: return
+                    p1 = bbox[0]
+                    p2 = bbox[2]
     else:
         rect_pts = rs.GetRectangle()
         if not rect_pts: return
@@ -379,7 +440,7 @@ def create_2d_curtain_wall():
             preview_ids = []
             
         rs.EnableRedraw(False)
-        preview_ids = generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len_v, params)
+        preview_ids = generate_preview(obj_id, outer_curves, p1, p2, is_non_planar_srf, len_u, len_v, params, plane)
         rs.EnableRedraw(True)
         
         results = rs.PropertyListBox(labels, defaults, title, msg)

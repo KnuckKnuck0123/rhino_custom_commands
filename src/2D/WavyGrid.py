@@ -20,6 +20,10 @@ def create_wavy_grid():
     jitter = rs.GetReal("Chaos Factor (Max offset)", 0.8, 0.0)
     if jitter is None: return
 
+    # Thickness
+    thickness = rs.GetReal("Grid line thickness (0 for none)", 0.0, 0.0)
+    if thickness is None: return
+
     # Disable redraw for speed
     rs.EnableRedraw(False)
 
@@ -44,22 +48,42 @@ def create_wavy_grid():
             col_points.append(pt)
         points.append(col_points)
 
+    def add_curve_with_thickness(pts):
+        curve_id = rs.AddInterpCurve(pts, degree=3, knotstyle=0)
+        if not curve_id: return
+        
+        if thickness > 0:
+            import Rhino, scriptcontext
+            rh_crv = rs.coercecurve(curve_id)
+            if rh_crv:
+                tol = rs.UnitAbsoluteTolerance()
+                off1 = rh_crv.Offset(Rhino.Geometry.Plane.WorldXY, thickness/2.0, tol, Rhino.Geometry.CurveOffsetCornerStyle.Sharp)
+                off2 = rh_crv.Offset(Rhino.Geometry.Plane.WorldXY, -thickness/2.0, tol, Rhino.Geometry.CurveOffsetCornerStyle.Sharp)
+                
+                if off1:
+                    for c in off1:
+                        cid = scriptcontext.doc.Objects.AddCurve(c)
+                        if cid: grid_curves.append(cid)
+                if off2:
+                    for c in off2:
+                        cid = scriptcontext.doc.Objects.AddCurve(c)
+                        if cid: grid_curves.append(cid)
+                
+                rs.DeleteObject(curve_id)
+        else:
+            grid_curves.append(curve_id)
+
     # 3. Create 'Horizontal' curves (along X direction)
     for j in range(y_cells + 1):
         row_pts = []
         for i in range(x_cells + 1):
             row_pts.append(points[i][j])
-        
-        # Create a smooth curve through these points
-        curve = rs.AddInterpCurve(row_pts, degree=3, knotstyle=0)
-        if curve: grid_curves.append(curve)
+        add_curve_with_thickness(row_pts)
 
     # 4. Create 'Vertical' curves (along Y direction)
     for i in range(x_cells + 1):
         col_pts = points[i]
-        
-        curve = rs.AddInterpCurve(col_pts, degree=3, knotstyle=0)
-        if curve: grid_curves.append(curve)
+        add_curve_with_thickness(col_pts)
 
     # Group the result
     if grid_curves:

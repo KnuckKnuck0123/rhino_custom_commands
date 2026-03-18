@@ -10,6 +10,10 @@
 | :--- | :--- |
 | **`VariableGrille`** | Generates vertical variable grilles with random height variations inside curves or on surfaces. |
 | **`GridCurtainWall`** | Parametric 2D grid generation for glass panels, mullions, and frames. Supports custom surface boundaries, grid rotation, jitter, and automated 3D curvature mapping. |
+| **`ContinuousCurtainWall`** | Generates continuous curtain walls along guided paths and frames. |
+| **`CurtainWall`** | Parametric curtain wall generator working on surfaces or closed curves (extruded to height). |
+| **`Storefront`** | Auto-generates storefront mullion systems on planar boundaries. |
+| **`Pill`** | Auto-drafting command to quickly draw a parametrically controlled 2D Pill shape. |
 | **`WavyGrid`** | Creates chaotic, fabric-like grids using interpolated curves and random jitter. |
 | **`DiagGrid`** | A hybrid grid generator for Diamond, Rectangular, or Union Jack patterns. |
 | **`StandardGrid`** | Standard orthogonal grid utility. |
@@ -20,9 +24,13 @@
 | :--- | :--- |
 | **`WildArray`** | **(MASH-style)** Powerful 3D array tool with linear/random modes for translation, rotation, and scale. |
 | **`CyberPanels`** | Recursive subdivision tool for sci-fi panels, extracting pipes and extrusions on any surface. |
+| **`SurfaceSubdivider`** | Recursive Mondrian-style subdivision mapping to organic shapes. |
 | **`RandomBrickPile`** | Generates a chaotic, conical pile of bricks using Gaussian distribution. |
 | **`RigidBrickPile`** | Physically simulates stacking bricks by raycasting to prevent overlaps (slower, more realistic). |
+| **`RigidStickPile`** | Rigid body simulation for dropping structural sticks/beams into a realistic pile. |
+| **`StairGenerator`** | Parametric IBC-compliant stair generator (Straight, L-Shape, U-Shape, Spiral). |
 | **`PolygonalPipe`** | Sweeps custom profiles (Round, Triangle, Rect) along curves. |
+| **`VariableOffset`** | Advanced offset tool to vary offset distances (Curve/Surface) with sine, noise, or linear interpolation. |
 | **`RandomExtrusion`** | Randomly extrudes curves/surfaces to different heights (City generator). |
 | **`SurfaceGridArray`** | Maps objects onto a surface grid (UV based). |
 
