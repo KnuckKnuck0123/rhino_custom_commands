@@ -40,7 +40,9 @@ This arsenal is optimized for **VS Code + Rhino 8**.
 
 1. **Open** this folder in VS Code.
 2. **Open** any script in `src/`.
-3. **Press `Cmd + Shift + B`** to execute the script instantly in your running Rhino instance.
+3. **Execute the script** instantly in your running Rhino instance:
+   - **Windows**: Press `Ctrl + Shift + B`
+   - **Mac**: Press `Cmd + Shift + B`
 4. **Debug**: Press `F5` to attach the debugger (requires `EditPythonScript` -> Options -> Debugger enabled in Rhino).
 
 ## 🛠️ Installation & Plugin Creation

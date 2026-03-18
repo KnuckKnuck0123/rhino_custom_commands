@@ -103,3 +103,7 @@ gha-creds-*.json
 
 # Antigravity Rules
 GEMINI.md
+
+# Gemini / Github Actions
+.github/commands/
+.github/workflows/
