@@ -45,6 +45,23 @@ This arsenal is optimized for **VS Code + Rhino 8**.
    - **Mac**: Press `Cmd + Shift + B`
 4. **Debug**: Press `F5` to attach the debugger (requires `EditPythonScript` -> Options -> Debugger enabled in Rhino).
 
+## ⚙️ Path Configuration (Optional)
+
+Adding `rhinocode` to your system PATH allows you to run Rhino scripts from any terminal window without typing the full path to the executable.
+
+**Mac:**
+Run this in your terminal to append it to your zsh profile:
+```bash
+echo 'export PATH="$PATH:/Applications/Rhino 8.app/Contents/Resources/bin"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Windows:**
+Run this in an **Administrator PowerShell**:
+```powershell
+[System.Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\Program Files\Rhino 8\System', [System.EnvironmentVariableTarget]::Machine)
+```
+
 ## 🛠️ Installation & Plugin Creation
 
 ### 🚀 Drag & Drop Installation (Rhino 8)
