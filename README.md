@@ -2,6 +2,9 @@
 
 **Rhino Geometry Arsenal NK** is a curated collection of high-performance Python scripts for Rhino 8, designed for generative architecture, detailing, and complex greeble generation.
 
+> [!NOTE]  
+> 🎓 **Workshop Participants**: If you are taking the SCI-Arc Python workshop, please switch to the `workshop-template` branch! That branch contains an empty repository shell and setup instructions designed specifically for the class.
+
 ## 🧰 The Arsenal
 
 ### **2D Generators**
