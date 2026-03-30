@@ -14,11 +14,13 @@ Welcome to the Rhino Custom Commands Workshop! This repository is designed as a 
 This setup is optimized for **VS Code, Antigravity + Rhino 8**. You can write your script and instantly execute it without switching context!
 
 1. **Launch Rhino 8** and leave it running.
-2. **Open this folder** in VS Code.
+2. **Open this exact folder directly** in VS Code (File -> Open Folder).
+   ⚠️ *Crucial requirement: This repository folder MUST be the top-level workspace in VS Code. If it is opened as a sub-folder inside another directory, VS Code will not detect the `.vscode/tasks.json` file!*
 3. Open or draft any `.py` script in the `src/` directory.
 4. **Execute the script instantly** inside Rhino using the built-in system task:
    - **Mac**: Press `Cmd + Shift + B`
    - **Windows**: Press `Ctrl + Shift + B`
+   - *Note: If you installed Rhino 8 on a drive other than `C:`, you must update the path in `.vscode/tasks.json` to point to your `rhinocode.exe` location.*
 5. **Debug**: Press `F5` to attach the debugger (requires `EditPythonScript` -> Options -> Debugger to be enabled in Rhino; alternatively, use RhinoCode's debugging interface).
 
 ## 🧰 Prerequisites & Extensions
@@ -31,15 +33,18 @@ Adding the modern `rhinocode` CLI to your system's PATH variable allows you to r
 
 **Mac:**
 Run this command in your terminal to append the bin path to your `~/.zshrc`:
+
 ```bash
 echo 'export PATH="$PATH:/Applications/Rhino 8.app/Contents/Resources/bin"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
 **Windows:**
-Run this command in an **Administrator PowerShell** window:
+Run this command in a standard **PowerShell** window. (This updates your User PATH, so Administrator privileges are no longer required!).
+*If Rhino is not installed on your C: drive, change `C:\Program Files...` to your actual installation path before running.*
+
 ```powershell
-[System.Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\Program Files\Rhino 8\System', [System.EnvironmentVariableTarget]::Machine)
+[System.Environment]::SetEnvironmentVariable('Path', $env:Path + ';C:\Program Files\Rhino 8\System', [System.EnvironmentVariableTarget]::User)
 ```
 
 ## 🛠 Building a Rhino Plugin
