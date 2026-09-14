@@ -146,7 +146,8 @@ The `tests/rhino_*.py` scripts run inside Rhino, not system Python.
 The Rhino Script Editor project is `ArrayStudio.rhproj`. It publishes one Rhino
 command, `ArrayStudio`, containing the four modes in its chooser. The package is
 version `0.9.0`, licensed under MIT, and targets Rhino 8 on Windows and macOS.
-The public Package Manager upload will follow clean-install testing of the `.yak`.
+The Package Manager identifier is `ArrayStudio`; the plugin and interface display
+the product name as Array Studio. Public upload follows clean-install testing.
 
 [McNeel script plugin publishing guide](https://developer.rhino3d.com/guides/scripting/projects-publish/)
 
