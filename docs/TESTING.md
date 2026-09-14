@@ -35,7 +35,8 @@ appropriate OS entry in `.vscode/tasks.json`.
 | Volume interactive use | Noah reports all four source tools working on Windows |
 | Window sizing | Fixed header/actions and scrolling settings layout revised; hands-on confirmation pending |
 | Windows source workflow and UI | Noah reports all tools working |
-| Installed package on macOS | Installed and toolbar registered; clean-start command check pending |
+| Installed package on macOS | Clean-start `ArrayStudio` command check passed |
+| Public Package Manager | `ArrayStudio (0.9.0)` verified on McNeel's server |
 
 Automated checks do not establish interactive acceptance. Record platform, Rhino
 version, and the cases tested when updating this table.

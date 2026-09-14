@@ -7,9 +7,18 @@ and spatial falloff. Built from scratch for architecture students on Windows and
 macOS, with four focused interfaces and support for curves, polysurfaces, groups,
 and block instances.
 
-**Version 0.9.0.** The source tools have been tested on Rhino 8 for macOS and
-Windows. The Package Manager build is being prepared for clean-install testing
-before public release.
+**Version 0.9.0.** Available for Rhino 8 on macOS and Windows through Rhino's
+Package Manager.
+
+## Install
+
+1. In Rhino 8, run `PackageManager`.
+2. Search for `ArrayStudio` and choose **Install**.
+3. Restart Rhino when prompted.
+4. Run the `ArrayStudio` command.
+
+No Git checkout, IDE, Python setup, or `StartScriptServer` command is needed for
+the packaged version.
 
 ## Get the Windows testing branch
 
@@ -146,8 +155,8 @@ The `tests/rhino_*.py` scripts run inside Rhino, not system Python.
 The Rhino Script Editor project is `ArrayStudio.rhproj`. It publishes one Rhino
 command, `ArrayStudio`, containing the four modes in its chooser. The package is
 version `0.9.0`, licensed under MIT, and targets Rhino 8 on Windows and macOS.
-The Package Manager identifier is `ArrayStudio`; the plugin and interface display
-the product name as Array Studio. Public upload follows clean-install testing.
+The Package Manager identifier and command are `ArrayStudio`; the plugin and
+interface display the product name as Array Studio.
 
 [McNeel script plugin publishing guide](https://developer.rhino3d.com/guides/scripting/projects-publish/)
 

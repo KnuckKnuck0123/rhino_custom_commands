@@ -100,13 +100,13 @@ Run the following **inside Rhino Python 3**, through ScriptEditor or the IDE tas
 Live viewport appearance, Undo, panel navigation, window resizing, irregular target
 geometry, and OS-specific behavior require [manual testing](TESTING.md).
 
-## Before a Package Manager release
+## Package Manager releases
 
-`ArrayStudio.rhproj` builds Array Studio 0.9.0 as one `ArrayStudio` Rhino command.
+`ArrayStudio.rhproj` builds Array Studio as one `ArrayStudio` Rhino command.
 The embedded `array_tools` Python library contains the chooser and four modes.
 The project is MIT licensed and targets Rhino 8 on Windows and macOS. Build the
 distributable, inspect its contents, and test a clean installation without this
-source checkout before publishing to the public Package Manager server.
+source checkout before publishing a new version to the public Package Manager server.
 
 On macOS, build the final package from the repository root with:
 
