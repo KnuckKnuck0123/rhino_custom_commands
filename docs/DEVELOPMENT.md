@@ -46,8 +46,8 @@ state and settings. Source and target geometry are captured for the current run:
 reselect them after editing the underlying Rhino objects.
 
 The panel's TableLayout keeps its header and action buttons fixed while settings
-scroll. The recent resize fix still needs hands-on acceptance across displays and
-Windows scaling settings.
+scroll. The revised layout has been exercised on macOS and Windows; additional
+display-scaling reports remain welcome.
 
 ## Geometry contract
 

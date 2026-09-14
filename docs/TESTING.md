@@ -1,11 +1,11 @@
-# Testing the development branch
+# Testing Array Studio
 
-This is source testing in Rhino 8, before Package Manager distribution. The
-source hotkey does not test installed plugin commands.
+This guide covers source testing in Rhino 8. The source hotkey does not test the
+installed Package Manager command.
 
 ## Start on Windows or Mac
 
-1. Check out the `array-tools` branch and open the **repository root** in VS Code
+1. Clone the repository and open the **repository root** in VS Code
    or a compatible IDE. `.vscode/tasks.json` must be inside the opened workspace;
    opening only `src` will hide the task.
 2. Start Rhino **8.11 or newer**, open a scratch model, and run `StartScriptServer`
@@ -25,7 +25,7 @@ appropriate OS entry in `.vscode/tasks.json`.
 
 ## Current evidence
 
-| Area | Status before Windows handoff |
+| Area | Current evidence |
 | --- | --- |
 | macOS interactive curve array | Noah's first test worked well |
 | macOS interactive surface array | Noah's initial test worked; complex targets still need coverage |
@@ -33,7 +33,7 @@ appropriate OS entry in `.vscode/tasks.json`.
 | Rhino geometry smoke checks | Previously passed, including box interior/exterior placement |
 | Rhino source/group/block checks | Previously passed in a separate headless document |
 | Volume interactive use | Noah reports all four source tools working on Windows |
-| Window sizing | Fixed header/actions and scrolling settings layout revised; hands-on confirmation pending |
+| Window sizing | Revised layout exercised on macOS and Windows; broader display-scaling coverage welcome |
 | Windows source workflow and UI | Noah reports all tools working |
 | Installed package on macOS | Clean-start `ArrayStudio` command check passed |
 | Public Package Manager | `ArrayStudio (0.9.0)` verified on McNeel's server |

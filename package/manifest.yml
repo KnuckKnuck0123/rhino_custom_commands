@@ -8,7 +8,7 @@ description: >
   surface, and interior or exterior volume arrays with shift, rotation, scale,
   deterministic random variation, gradual variation, and spatial falloff.
 license: MIT
-url: https://github.com/KnuckKnuck0123/rhino_custom_commands/tree/array-tools
+url: https://github.com/KnuckKnuck0123/ArrayStudio
 icon: icon.png
 keywords:
 - array
