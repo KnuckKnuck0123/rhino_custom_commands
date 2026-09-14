@@ -79,7 +79,9 @@ def main(case=None):
     window = ArrayToolsWindow(doc, case)
     sc.sticky['nk_array_tools_window'] = window
     if snapshot:
-        window.restore(snapshot)
+        from array_tools.objects import adopt_source
+        settings, source, base, center, target = snapshot
+        window.restore((settings, adopt_source(source), base, center, target))
     EtoExtensions.Show(window, doc)
 
 

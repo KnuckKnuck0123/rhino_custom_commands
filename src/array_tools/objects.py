@@ -33,10 +33,12 @@ def _wire_geometry(obj, accumulated, ancestors=()):
     geometry = obj.Geometry.Duplicate()
     if geometry is None:
         raise ValueError("A source object could not be copied.")
-    if isinstance(geometry, RG.Surface):
+    if isinstance(geometry, (RG.Surface, RG.Extrusion)):
         surface = geometry
         geometry = surface.ToBrep()
         surface.Dispose()
+        if geometry is None:
+            raise ValueError("A source surface could not be prepared for preview.")
     if not isinstance(geometry, (RG.Curve, RG.Brep, RG.Mesh, RG.Extrusion, RG.Point, RG.PointCloud)):
         geometry.Dispose()
         raise ValueError("Use curves, surfaces, polysurfaces, meshes, points, or blocks containing these objects.")
@@ -53,6 +55,8 @@ class _Preview(Rhino.Display.DisplayConduit):
         self.transforms = []
         self.bounds = RG.BoundingBox.Empty
         self.color = Color.FromArgb(55, 185, 230)
+        self.style = "Wireframe"
+        self.material = Rhino.Display.DisplayMaterial(self.color)
 
     def CalculateBoundingBox(self, event):
         if (event.RhinoDoc is not None
@@ -76,11 +80,15 @@ class _Preview(Rhino.Display.DisplayConduit):
                     if isinstance(geometry, RG.Curve):
                         display.DrawCurve(geometry, self.color, 1)
                     elif isinstance(geometry, RG.Brep):
-                        display.DrawBrepWires(geometry, self.color, -1)
+                        if self.style == "Shaded":
+                            display.DrawBrepShaded(geometry, self.material)
+                        else:
+                            display.DrawBrepWires(geometry, self.color, -1)
                     elif isinstance(geometry, RG.Mesh):
-                        display.DrawMeshWires(geometry, self.color)
-                    elif isinstance(geometry, RG.Extrusion):
-                        display.DrawExtrusionWires(geometry, self.color)
+                        if self.style == "Shaded":
+                            display.DrawMeshShaded(geometry, self.material)
+                        else:
+                            display.DrawMeshWires(geometry, self.color)
                     elif isinstance(geometry, RG.Point):
                         display.DrawPoint(geometry.Location, self.color)
                     elif isinstance(geometry, RG.PointCloud):
@@ -160,6 +168,20 @@ class SourceSet:
         self._conduit.Enabled = bool(transforms)
         self.doc.Views.Redraw()
 
+    def set_preview_style(self, style="Wireframe", color=None):
+        """Set viewport-only appearance. Color is a System.Drawing.Color."""
+        self._check()
+        if style not in ("Wireframe", "Shaded"):
+            raise ValueError("Preview style must be Wireframe or Shaded.")
+        if color is None:
+            color = self._conduit.color
+        if not isinstance(color, Color):
+            raise ValueError("Preview color must be a System.Drawing.Color.")
+        self._conduit.material.Diffuse = color
+        self._conduit.color = color
+        self._conduit.style = style
+        self.doc.Views.Redraw()
+
     def clear_preview(self):
         self._conduit.Enabled = False
         self._conduit.transforms = []
@@ -227,6 +249,7 @@ class SourceSet:
         if self._disposed:
             return
         self.clear_preview()
+        self._conduit.material.Dispose()
         _dispose(self._wires)
         for geometry, attributes, _, _ in self._sources:
             if geometry is not None:
@@ -239,3 +262,30 @@ class SourceSet:
 
 def capture_sources(doc, object_ids):
     return SourceSet(doc, object_ids)
+
+
+def adopt_source(source):
+    """Transfer a captured selection to freshly reloaded development classes."""
+    if source is None or isinstance(source, SourceSet):
+        return source
+    source.clear_preview()
+    material = getattr(source._conduit, 'material', None)
+    if material is not None:
+        material.Dispose()
+    fresh = SourceSet.__new__(SourceSet)
+    fresh.__dict__.update(source.__dict__)
+    fresh._conduit = _Preview(fresh)
+    # Older live versions stored extrusions directly; normalize for shaded draw.
+    wires = []
+    for geometry in fresh._wires:
+        if isinstance(geometry, RG.Extrusion):
+            brep = geometry.ToBrep()
+            geometry.Dispose()
+            wires.append(brep)
+        else:
+            wires.append(geometry)
+    fresh._wires = wires
+    source._sources = []
+    source._wires = []
+    source._disposed = True
+    return fresh

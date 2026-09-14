@@ -98,7 +98,7 @@ class ArrayToolsWindow(ef.Form):
         self.case = case
         self.Title = {'Profiles': 'Profile Array', 'AlongCurve': 'Along Curve', 'Surface': 'Surface Array', 'Volume': 'Volume Array'}[case]
         self.ClientSize = ed.Size(640, 640)
-        self.MinimumSize = ed.Size(600, 460)
+        self.MinimumSize = ed.Size(600, 500)
         self.Padding = ed.Padding(12)
         self.source = None
         self.target = None
@@ -126,6 +126,13 @@ class ArrayToolsWindow(ef.Form):
         self.progression = dropdown(['X / U', 'Y / V', 'Z'])
         self.falloff = widget(ef.CheckBox, Text='Enable falloff zone', Checked=False)
         self.live = widget(ef.CheckBox, Text='Live preview', Checked=True)
+        preview_prefs = sc.sticky.get('nk_array_tools_preview', ('Wireframe', (55, 185, 230)))
+        self.preview_style = dropdown(['Wireframe', 'Shaded'], 1 if preview_prefs[0] == 'Shaded' else 0)
+        self.preview_color = ef.ColorPicker()
+        self.preview_color.Value = ed.Color.FromArgb(*preview_prefs[1])
+        self.preview_color.Width = 70
+        self.preview_style.SelectedIndexChanged += self.on_preview_change
+        self.preview_color.ValueChanged += self.on_preview_change
         self.center_label = label('Center: source base point')
         for control in (self.mode, self.volume_mode, self.variation, self.progression):
             control.SelectedIndexChanged += self.on_change
@@ -147,6 +154,7 @@ class ArrayToolsWindow(ef.Form):
                     self.row(self.button('Select source', self.pick_source), self.source_label),
                     self.row(self.button('Pick base point', self.pick_base), label('Axes follow the construction plane.')),
                     tabs,
+                    self.row(label('Preview'), self.preview_style, label('Color'), self.preview_color),
                     self.row(self.live, self.button('Refresh preview', self.refresh)),
                     self.status,
                     self.row(self.create_button, self.cancel_button)]
@@ -271,6 +279,17 @@ class ArrayToolsWindow(ef.Form):
                         progression='XYZ'[self.progression.SelectedIndex], falloff_enabled=bool(self.falloff.Checked),
                         falloff_center=(self.center.X, self.center.Y, self.center.Z))
         return settings
+
+    def on_preview_change(self, sender, event):
+        try:
+            value = self.preview_color.Value
+            rgb = tuple(int(round(max(0., min(1., float(channel))) * 255)) for channel in (value.R, value.G, value.B))
+            style = ['Wireframe', 'Shaded'][self.preview_style.SelectedIndex]
+            sc.sticky['nk_array_tools_preview'] = (style, rgb)
+            if self.source:
+                self.source.set_preview_style(style, Color.FromArgb(*rgb))
+        except Exception as error:
+            self.report(error)
 
     def ensure_doc(self):
         if Rhino.RhinoDoc.ActiveDoc is None or Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber != self.doc.RuntimeSerialNumber:
@@ -445,6 +464,7 @@ class ArrayToolsWindow(ef.Form):
             transforms, points = build_transforms(settings, self.base, self.target, self.doc.ModelAbsoluteTolerance)
             limit = max(1, min(1000, 5000 // self.source.count))
             preview = transforms if len(transforms) <= limit else [transforms[int(i * len(transforms) / limit)] for i in range(limit)]
+            self.on_preview_change(None, None)
             self.source.preview(preview)
             self.zone.circles = []
             if settings['falloff_enabled']:

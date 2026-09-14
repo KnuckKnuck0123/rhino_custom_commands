@@ -95,8 +95,13 @@ variation settings; select a new target for the new use case.
 4. Adjust placement. Choose Random or Gradual under Variation, then edit Shift,
    Rotate, or Scale. Random uses minimum/maximum; gradual uses start/end values.
 5. Optionally enable Falloff and pick its center. Set radius, strength and softness.
-6. Inspect the temporary wire preview. **Create array** adds output in one undo
+6. Inspect the temporary preview. Choose **Wireframe** or **Shaded** and use the
+   **Color** picker to change its appearance. **Create array** adds output in one undo
    operation and closes the panel. **Cancel / Close** clears the preview.
+
+Preview style and color affect only temporary display; generated objects retain
+their source attributes. Curves remain lines in Shaded mode. Preview preferences
+are remembered for the current Rhino session.
 
 Uniform scale is on by default; turn it off for independent axis scales.
 Blocks stay instances. Grouped sources move together and each multi-object copy

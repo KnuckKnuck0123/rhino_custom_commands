@@ -79,6 +79,9 @@ Rhino objects.
   strength, and softness. Outside the zone, copies should return to ordinary
   placement and scale 1. Strength 0 should remove variation without removing
   copies. Confirm this for both Random and Gradual.
+- **Preview appearance:** switch Wireframe/Shaded and change Color for a solid,
+  group, and block. Curves should remain lines. Create output and verify that its
+  source object colors/materials are preserved.
 - **Cancel:** after changing preview settings, use Cancel / Close and the window
   close button. Preview and zone guides should disappear without adding objects.
 - **Undo:** Create should preserve originals, select output, and undo as one

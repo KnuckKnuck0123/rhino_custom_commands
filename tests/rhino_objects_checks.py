@@ -27,6 +27,10 @@ def run():
         source = capture_sources(doc, [first])
         assert source.count == 2, "Selecting a group member must capture its unit"
         before = doc.Objects.Count
+        source.set_preview_style('Shaded', System.Drawing.Color.Orange)
+        assert source._conduit.style == 'Shaded'
+        assert source._conduit.color == System.Drawing.Color.Orange
+        source.set_preview_style('Wireframe', System.Drawing.Color.Cyan)
         source.preview([RG.Transform.Translation(10, 0, 0)])
         source.clear_preview()
         assert doc.Objects.Count == before, "Preview must not add document objects"
