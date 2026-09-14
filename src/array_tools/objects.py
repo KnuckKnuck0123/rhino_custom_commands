@@ -1,4 +1,4 @@
-"""Rhino document boundary for Array Tools. Call on Rhino's UI thread only.
+"""Rhino document boundary for Array Studio. Call on Rhino's UI thread only.
 
 Preview owns geometry but never adds objects to the document. Output preserves
 block instances and treats the entire source selection as one repeatable unit.
@@ -203,7 +203,7 @@ class SourceSet:
                     raise ValueError("A source block definition was deleted; select sources again.")
         added = []
         groups = []
-        undo = self.doc.BeginUndoRecord("Array Tools")
+        undo = self.doc.BeginUndoRecord("Array Studio")
         try:
             for transform in transforms:
                 unit = List[System.Guid]()

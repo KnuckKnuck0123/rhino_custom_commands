@@ -1,0 +1,56 @@
+{
+  "host": {
+    "name": "Rhino3D",
+    "version": "8.35.26251",
+    "os": "macOS",
+    "arch": "arm64"
+  },
+  "id": "9b8fb72a-4613-46ef-b49e-1c4727fb1c7d",
+  "identity": {
+    "name": "Array Studio",
+    "version": "0.9.0",
+    "publisher": {
+      "email": "109221464+noahlee1234@users.noreply.github.com",
+      "name": "Noah K",
+      "company": ""
+    }
+  },
+  "settings": {
+    "buildPath": "release",
+    "buildTarget": {
+      "host": {
+        "name": "Rhino3D",
+        "version": "8"
+      },
+      "title": "Rhino3D (8.*)",
+      "slug": "rh8"
+    },
+    "publishTarget": {
+      "title": "McNeel Yak Server"
+    }
+  },
+  "codes": [
+    {
+      "id": "64c5cb1a-f763-4f61-a316-2e02d78752c7",
+      "language": {
+        "id": "mcneel.pythonnet.python",
+        "version": "3.9.10"
+      },
+      "title": "ArrayStudio",
+      "uri": "src/ArrayStudio.py"
+    }
+  ],
+  "libraries": [
+    {
+      "type": "uri",
+      "library": {
+        "base": "src/array_tools/",
+        "language": {
+          "id": "*.*.python",
+          "version": "3.*.*"
+        }
+      }
+    }
+  ],
+  "resources": []
+}

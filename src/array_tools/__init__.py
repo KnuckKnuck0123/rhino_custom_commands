@@ -1,1 +1,1 @@
-"""Rhino Array Tools — source development package."""
+"""Array Studio for Rhino 8."""

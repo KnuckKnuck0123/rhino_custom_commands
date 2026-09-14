@@ -1,0 +1,22 @@
+---
+name: Array Studio
+version: 0.9.0
+authors:
+- Noah K
+description: >
+  Cross-platform variation array tools for Rhino 8. Create profile, curve,
+  surface, and interior or exterior volume arrays with shift, rotation, scale,
+  deterministic random variation, gradual variation, and spatial falloff.
+license: MIT
+url: https://github.com/KnuckKnuck0123/rhino_custom_commands/tree/array-tools
+icon: icon.png
+keywords:
+- array
+- architecture
+- aggregation
+- variation
+- curve
+- surface
+- volume
+- blocks
+- guid:9b8fb72a-4613-46ef-b49e-1c4727fb1c7d

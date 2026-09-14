@@ -172,10 +172,8 @@ class ArrayToolsWindow(ef.Form):
         self.update_controls()
 
     def go_back(self):
-        import ArrayTools
-        import importlib
-        importlib.reload(ArrayTools)
-        ArrayTools.main()
+        from .app import main
+        main()
 
     def button(self, text, action):
         button = widget(ef.Button, Text=text)
@@ -293,7 +291,7 @@ class ArrayToolsWindow(ef.Form):
 
     def ensure_doc(self):
         if Rhino.RhinoDoc.ActiveDoc is None or Rhino.RhinoDoc.ActiveDoc.RuntimeSerialNumber != self.doc.RuntimeSerialNumber:
-            raise ValueError('Activate the document where you opened Array Tools.')
+            raise ValueError('Activate the document where you opened Array Studio.')
 
     def pick(self, callback):
         self.ensure_doc()
@@ -493,7 +491,7 @@ class ArrayToolsWindow(ef.Form):
 
     def report(self, error):
         self.status.Text = str(error)
-        Rhino.RhinoApp.WriteLine('Array Tools: ' + str(error))
+        Rhino.RhinoApp.WriteLine('Array Studio: ' + str(error))
 
     def on_closed(self, sender, event):
         self.closed = True
@@ -506,5 +504,5 @@ class ArrayToolsWindow(ef.Form):
         if self.target:
             self.target.Dispose()
         self.doc.Views.Redraw()
-        if sc.sticky.get('nk_array_tools_window') is self:
-            sc.sticky.pop('nk_array_tools_window', None)
+        if sc.sticky.get('array_studio_window') is self:
+            sc.sticky.pop('array_studio_window', None)

@@ -32,10 +32,10 @@ appropriate OS entry in `.vscode/tasks.json`.
 | Pure Python variation checks | Seven checks previously passed |
 | Rhino geometry smoke checks | Previously passed, including box interior/exterior placement |
 | Rhino source/group/block checks | Previously passed in a separate headless document |
-| Volume interactive use | Pending Noah's test |
+| Volume interactive use | Noah reports all four source tools working on Windows |
 | Window sizing | Fixed header/actions and scrolling settings layout revised; hands-on confirmation pending |
-| Windows source workflow and UI | Pending |
-| Installed package on either OS | Pending; no `.yak` package yet |
+| Windows source workflow and UI | Noah reports all tools working |
+| Installed package on macOS | Installed and toolbar registered; clean-start command check pending |
 
 Automated checks do not establish interactive acceptance. Record platform, Rhino
 version, and the cases tested when updating this table.

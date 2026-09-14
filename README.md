@@ -1,16 +1,15 @@
-<img src="assets/array-tools-icon.png" alt="Array Tools icon: an array of teal architectural blocks" width="128" />
+<img src="assets/array-tools-icon.png" alt="Array Studio icon: an array of teal architectural blocks" width="128" />
 
-# Rhino Array Tools
+# Array Studio
 
 Array tools for Rhino 8 with shift, rotation, scale, random/gradual variation,
 and spatial falloff. Built from scratch for architecture students on Windows and
 macOS, with four focused interfaces and support for curves, polysurfaces, groups,
 and block instances.
 
-**Status: development version for testing.** The tools run from source; no Rhino
-Package Manager release or installable `.yak` has been published yet. Noah has
-tried the curve and surface tools on Mac. Hands-on volume testing and Windows
-acceptance are next.
+**Version 0.9.0.** The source tools have been tested on Rhino 8 for macOS and
+Windows. The Package Manager build is being prepared for clean-install testing
+before public release.
 
 ## Get the Windows testing branch
 
@@ -60,7 +59,7 @@ There are **no pip dependencies to install** for using the tools.
 The task sends the active saved file to Rhino with `rhinocode script`. It needs
 no plugin installation, PATH configuration, or manual `RunPythonScript` command.
 For a harmless connection check, open `src/TestConnection.py` and use the same
-shortcut; Rhino should print an Array Tools connection message.
+shortcut; Rhino should print an Array Studio connection message.
 
 Standard executable paths are already configured in `.vscode/tasks.json`:
 
@@ -79,7 +78,8 @@ Open one of these entry scripts and press the build hotkey:
 
 | File | Tool |
 | --- | --- |
-| `src/ArrayTools.py` | Chooser for all four tools |
+| `src/ArrayStudio.py` | The packaged `ArrayStudio` command and tool chooser |
+| `src/ArrayTools.py` | Development launcher with module reloading |
 | `src/ProfileArray.py` | Linear or grid arrays on the construction plane |
 | `src/ArrayAlongCurve.py` | Objects along a 2D or 3D curve |
 | `src/SurfaceArray.py` | U/V samples on a surface or selected face |
@@ -125,7 +125,7 @@ gets its own group. Originals are preserved, and the final output is selected.
   to 100 and samples large previews; creation uses all valid placements.
 - A copied source and target are captured for the preview. Reselect after editing
   the source/target geometry in Rhino.
-- Windows-specific UI and installed-package testing remain pending.
+- The installed package still needs a final clean-start check on both platforms.
 
 ## Verification
 
@@ -134,21 +134,19 @@ pass for linear/grid, vertical curves, surface UV, exterior/interior volumes,
 falloff, and candidate limits. Separate headless-document checks pass for preview
 isolation, groups, and block instance preservation/composed transforms. All four
 Eto panels construct and their contextual controls pass a runtime smoke check.
-Noah reported successful curve and surface trials on Mac. The resizing layout has
-been revised after feedback; shrinking/re-expanding it on different displays,
-Undo/Cancel, volume, falloff, and Windows acceptance still need hands-on testing.
+Noah reported successful curve and surface trials on Mac and all four source tools
+working on Windows. The resizing layout was revised after feedback. The packaged
+command still needs a final clean-start check on both platforms.
 
 Run standalone checks with `python3 -m unittest discover -s tests -p 'test_*.py'`.
 The `tests/rhino_*.py` scripts run inside Rhino, not system Python.
 
 ## Packaging
 
-The intended distribution is Rhino Package Manager for students on Windows and
-macOS. No package has been published. Once the interface and command behavior are
-accepted, create a Rhino Script Editor project with the four entry commands and
-include the shared `array_tools` module folder, then publish and test the installed
-package on both platforms. Package name, identity, and version remain to be set. A first icon is included in
-`assets/array-tools-icon.png`; package-specific sizing can be finalized at build time.
+The Rhino Script Editor project is `ArrayStudio.rhproj`. It publishes one Rhino
+command, `ArrayStudio`, containing the four modes in its chooser. The package is
+version `0.9.0`, licensed under MIT, and targets Rhino 8 on Windows and macOS.
+The public Package Manager upload will follow clean-install testing of the `.yak`.
 
 [McNeel script plugin publishing guide](https://developer.rhino3d.com/guides/scripting/projects-publish/)
 

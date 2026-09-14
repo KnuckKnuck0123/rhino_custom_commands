@@ -26,7 +26,9 @@ plugin commands or require package installation.
 
 | Path | Responsibility |
 | --- | --- |
-| `src/ArrayTools.py` | Tool chooser, window lifecycle, switching state, development reloads |
+| `src/ArrayStudio.py` | Published `ArrayStudio` Rhino command entry point |
+| `src/ArrayTools.py` | Development launcher with implementation reloads |
+| `src/array_tools/app.py` | Tool chooser, window lifecycle, and switching state |
 | `src/ProfileArray.py` | Dedicated plan linear/grid launcher |
 | `src/ArrayAlongCurve.py` | Dedicated curve launcher |
 | `src/SurfaceArray.py` | Dedicated surface launcher |
@@ -100,13 +102,23 @@ geometry, and OS-specific behavior require [manual testing](TESTING.md).
 
 ## Before a Package Manager release
 
-The branch is a development handoff, not an installed plugin or published `.yak`.
-Finish volume and Windows acceptance, resolve reported UI issues, and settle the
-public package name, version, command names, license, and final icon (draft assets
-are included). No license has been selected in this branch. Then create the Rhino
-Script Editor project, include the shared module folder with its entry commands,
-build the distributable, and test clean installation on both platforms without
-depending on this source checkout. Publishing follows acceptance of that package.
+`ArrayStudio.rhproj` builds Array Studio 0.9.0 as one `ArrayStudio` Rhino command.
+The embedded `array_tools` Python library contains the chooser and four modes.
+The project is MIT licensed and targets Rhino 8 on Windows and macOS. Build the
+distributable, inspect its contents, and test a clean installation without this
+source checkout before publishing to the public Package Manager server.
+
+On macOS, build the final package from the repository root with:
+
+```sh
+sh scripts/build_package.sh
+```
+
+The script first uses RhinoCode to compile the `.rhp`, removes generated solution
+sources, then replaces the minimal manifest with `package/manifest.yml` and adds
+the 64 px package icon, MIT license, and README before Yak creates the final
+`rh8-any` package. The output is written under `build/package/rh8/` and is
+intentionally excluded from Git.
 
 See McNeel's [RhinoCode CLI guide](https://developer.rhino3d.com/en/guides/scripting/advanced-cli/)
 and [script plugin publishing guide](https://developer.rhino3d.com/guides/scripting/projects-publish/).
